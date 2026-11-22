@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Serhiy Hromyko — Data & AI Analyst | AI Evaluation & Integration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                        hand: ['Caveat', 'cursive'],
+                    },
+                    colors: {
+                        obsidian: '#0B0F17',
+                        cardBg: '#131A26',
+                        cardHover: '#1B2433',
+                        emeraldAccent: '#10B981',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0B0F17;
+            color: #E2E8F0;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        #nodes-canvas {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .bg-marquee {
+            position: fixed;
+            top: 130px;
+            left: 0;
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            z-index: 1;
+            opacity: 0.04;
+            pointer-events: none;
+            user-select: none;
+        }
+        .bg-marquee-track {
+            display: inline-block;
+            font-size: clamp(3.5rem, 9vw, 8rem);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            animation: marqueeScroll 38s linear infinite;
+        }
+        @keyframes marqueeScroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .glass-card {
+            background: rgba(19, 26, 38, 0.78);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-card:hover {
+            border-color: rgba(16, 185, 129, 0.45);
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.09);
+        }
+        .badge-w3c {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.5);
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-emerald-500 selection:text-black min-h-screen flex flex-col justify-between relative">
+
+    <canvas id="nodes-canvas"></canvas>
+
+    <div class="bg-marquee">
+        <div id="marquee-track" class="bg-marquee-track">
+            SERHIY HROMYKO · AI EVALUATION · DID:VIREO · DATA ANALYTICS · COMPLIANCE ·&nbsp;
+            SERHIY HROMYKO · AI EVALUATION · DID:VIREO · DATA ANALYTICS · COMPLIANCE ·&nbsp;
+        </div>
+    </div>
+
+    <header class="sticky top-0 z-50 border-b border-slate-800/80 bg-obsidian/80 backdrop-blur-md px-6 py-4">
+        <div class="max-w-5xl mx-auto flex justify-between items-center gap-4">
+            <a href="#" class="flex items-center space-x-3 group shrink-0">
+                <span class="relative w-10 h-10 rounded-full border border-slate-700 bg-cardBg flex items-center justify-center font-mono text-sm font-bold text-white group-hover:border-emerald-400 transition">
+                    SH
+                    <span class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-obsidian"></span>
+                </span>
+                <span class="font-mono text-xs text-slate-400 hidden sm:inline">serhohro.github.io</span>
+            </a>
+
+            <nav class="hidden md:flex space-x-6 text-xs font-mono tracking-wide text-slate-400">
+                <a href="#about" id="nav-about" class="hover:text-emerald-400 transition-colors">// 01. ABOUT</a>
+                <a href="#projects" id="nav-projects" class="hover:text-emerald-400 transition-colors">// 02. PROJECTS</a>
+                <a href="#skills" id="nav-skills" class="hover:text-emerald-400 transition-colors">// 03. SKILLS</a>
+                <a href="#experience" id="nav-experience" class="hover:text-emerald-400 transition-colors">// 04. EXPERIENCE</a>
+                <a href="#contact" id="nav-contact" class="hover:text-emerald-400 transition-colors">// 05. CONTACT</a>
+            </nav>
+
+            <div class="flex items-center space-x-2 shrink-0">
+                <div class="inline-flex rounded-md bg-slate-900/90 border border-slate-700 p-0.5 text-xs font-mono" role="group" aria-label="Language switcher">
+                    <button id="lang-en" type="button" onclick="switchLang('en')" class="px-2.5 py-1 rounded bg-emerald-500 text-black font-semibold transition">EN</button>
+                    <button id="lang-de" type="button" onclick="switchLang('de')" class="px-2.5 py-1 rounded text-slate-300 hover:text-white transition">DE</button>
+                </div>
+
+                <button type="button" onclick="copyContactEmail()" class="text-xs font-mono px-3 py-1.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center space-x-2">
+                    <i class="fa-regular fa-copy text-emerald-400"></i>
+                    <span id="btn-copy-text">Copy Email</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-6 py-12 space-y-24 flex-grow relative z-10">
+
+        <section id="about" class="pt-4 sm:pt-10 space-y-8">
+            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-950/70 border border-emerald-500/30 text-emerald-400 text-xs font-mono">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span id="about-badge">Hamburg, Germany • AI Evaluation Analyst / AI Analyst / Applied AI</span>
+            </div>
+
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-8">
+                <div class="space-y-4 max-w-2xl">
+                    <h1 class="text-4xl sm:text-6xl font-bold tracking-tight text-white leading-tight">
+                        Serhiy Hromyko
+                    </h1>
+                    <p id="about-subtitle" class="text-lg sm:text-xl font-mono text-slate-400">
+                        Data & AI Analyst <span class="text-emerald-400">|</span> AI Evaluation & Integration
+                    </p>
+                    <p id="about-bio" class="text-slate-300 text-base leading-relaxed font-light">
+                        <strong class="font-medium text-white">10+ years of legal data, compliance & risk analysis</strong> background combined with practical AI engineering since 2025. Author of W3C-registered DID method <code class="font-mono text-emerald-400 bg-slate-900 px-1.5 py-0.5 rounded text-sm">did:vireo</code>, multi-LLM failover systems, and privacy-first AutoML & analytics tools.
+                    </p>
+                </div>
+
+                <div class="relative self-start md:self-center shrink-0">
+                    <div class="w-40 h-44 sm:w-44 sm:h-48 rounded-2xl overflow-hidden border border-slate-700 bg-cardBg shadow-2xl">
+                        <img src="avatar.jpg" alt="Serhiy Hromyko" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/180x200/131A26/10B981?text=SH'">
+                    </div>
+                    <div class="font-hand text-3xl sm:text-4xl text-emerald-400 -rotate-6 select-none pointer-events-none -mt-4 -mr-3 text-right drop-shadow">
+                        Serhiy Hromyko
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-4 pt-2">
+                <a href="mailto:sergo87231@gmail.com" class="px-5 py-2.5 rounded-lg bg-emerald-500 text-black font-semibold text-sm hover:bg-emerald-400 transition flex items-center space-x-2 shadow-lg shadow-emerald-500/10">
+                    <i class="fa-regular fa-envelope"></i>
+                    <span id="btn-contact-text">Get in Touch</span>
+                </a>
+                <a href="https://github.com/serhohro" target="_blank" rel="noopener noreferrer" class="px-5 py-2.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 text-sm font-medium transition flex items-center space-x-2">
+                    <i class="fa-brands fa-github text-emerald-400"></i>
+                    <span>GitHub</span>
+                </a>
+                <a href="https://www.linkedin.com/in/serhiy-hromyko-56852325a/" target="_blank" rel="noopener noreferrer" class="px-5 py-2.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 text-sm font-medium transition flex items-center space-x-2">
+                    <i class="fa-brands fa-linkedin text-blue-400"></i>
+                    <span>LinkedIn</span>
+                </a>
+            </div>
+        </section>
+
+        <section id="projects" class="space-y-8">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between border-b border-slate-800 pb-4 gap-4">
+                <div>
+                    <h2 id="projects-label" class="text-xs font-mono text-emerald-400 tracking-widest uppercase">// PORTFOLIO</h2>
+                    <h3 id="projects-title" class="text-2xl sm:text-3xl font-bold text-white mt-1">AI Systems, Analytics & Tools</h3>
+                </div>
+                <div class="flex flex-wrap gap-2 text-xs font-mono" id="filter-buttons">
+                    <button type="button" onclick="filterProjects('all', this)" id="filter-all" class="filter-btn active px-3 py-1.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/50">All</button>
+                    <button type="button" onclick="filterProjects('ai', this)" id="filter-ai" class="filter-btn px-3 py-1.5 rounded-md bg-slate-800 text-slate-400 border border-slate-700 hover:text-white">AI Systems</button>
+                    <button type="button" onclick="filterProjects('analytics', this)" id="filter-analytics" class="filter-btn px-3 py-1.5 rounded-md bg-slate-800 text-slate-400 border border-slate-700 hover:text-white">Data Analytics</button>
+                    <button type="button" onclick="filterProjects('live', this)" id="filter-live" class="filter-btn px-3 py-1.5 rounded-md bg-slate-800 text-slate-400 border border-slate-700 hover:text-white">Live & Apps</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="projects-grid">
+
+                <!-- 1. did:vireo -->
+                <article class="project-card md:col-span-2 glass-card rounded-xl p-6 sm:p-8 space-y-4 transition-all duration-300" data-tags="ai">
+                    <div class="flex flex-wrap justify-between items-start gap-2">
+                        <div class="space-y-1">
+                            <span id="p1-badge" class="inline-block badge-w3c text-emerald-300 text-xs font-mono px-2.5 py-0.5 rounded-full font-medium">
+                                <i class="fa-solid fa-award mr-1"></i> W3C Registered DID Method
+                            </span>
+                            <h4 id="p1-title" class="text-xl sm:text-2xl font-bold text-white">01. did:vireo — W3C Decentralized Identifier Method</h4>
+                        </div>
+                        <span id="p1-meta" class="text-xs font-mono text-slate-500">Apache 2.0 • 226 B Byte-Identical</span>
+                    </div>
+                    <p id="p1-desc" class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                        Developed and officially registered <code class="text-emerald-400 font-mono">did:vireo</code> in the W3C DID Method Registry for AI agent identity and verifiable communication. Byte-identical (226 B) across Python, Rust, and TypeScript with BLAKE2b-256 and Ed25519 verification in CI.
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700 text-slate-300">W3C DID Registry</span>
+                        <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700 text-slate-300">Python · Rust · TypeScript</span>
+                        <span class="text-xs font-mono px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700 text-slate-300">BLAKE2b-256 & Ed25519</span>
+                    </div>
+                    <div class="pt-3 border-t border-slate-800/60 flex flex-wrap gap-6">
+                        <a href="https://www.w3.org/TR/did-extensions-methods/#did-methods" target="_blank" rel="noopener noreferrer" class="text-xs font-mono text-emerald-400 hover:text-emerald-300 inline-flex items-center space-x-1.5">
+                            <i class="fa-solid fa-certificate"></i>
+                            <span class="link-w3c">W3C DID Methods Registry</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                        <a href="https://github.com/serhohro/vireo-ai-communicator-api" target="_blank" rel="noopener noreferrer" class="text-xs font-mono text-blue-400 hover:text-blue-300 inline-flex items-center space-x-1.5">
+                            <i class="fa-brands fa-github"></i>
+                            <span class="link-view-repo">View Repository</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- 2. Vireo AI Communicator API -->
+                <article class="project-card glass-card rounded-xl p-6 space-y-4 transition-all duration-300 flex flex-col justify-between" data-tags="ai">
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-start gap-2">
+                            <h4 class="text-lg font-bold text-white">02. Vireo AI Communicator API</h4>
+                            <span class="text-xs font-mono text-slate-500">API / Interop</span>
+                        </div>
+                        <p id="p2-desc" class="text-slate-300 text-sm leading-relaxed">
+                            Open-source API and communication platform built on <code class="text-emerald-400 font-mono">did:vireo</code>. Enables ChatGPT, Claude, Gemini, and local models to exchange structured data via a common protocol.
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span id="p2-tag1" class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">Compiler & Interpreter</span>
+                            <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">REST API</span>
+                            <span id="p2-tag2" class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">Local Inference</span>
+                        </div>
+                    </div>
+                    <div class="pt-3 border-t border-slate-800/60">
+                        <a href="https://github.com/serhohro/vireo-ai-communicator-api" target="_blank" rel="noopener noreferrer" class="text-xs font-mono text-emerald-400 hover:text-emerald-300 inline-flex items-center space-x-1.5">
+                            <i class="fa-brands fa-github"></i>
+                            <span class="link-gh-repo">GitHub Repository</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- 3. WarmPath Radar -->
+                <article class="project-card glass-card rounded-xl p-6 space-y-4 transition-all duration-300 flex flex-col justify-between" data-tags="analytics live">
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-start gap-2">
+                            <h4 class="text-lg font-bold text-white">03. WarmPath Radar</h4>
+                            <span id="p3-meta" class="text-xs font-mono text-blue-400">Live App</span>
+                        </div>
+                        <p id="p3-desc" class="text-slate-300 text-sm leading-relaxed">
+                            Decision-support network analytics app consolidating CSV, TSV, XLSX, ODS, JSON, JSONL, and Parquet contacts with Opportunity Scoring, warm-intro path visualization, and GDPR-aware local processing.
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span id="p3-tag1" class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">Multi-Format ETL</span>
+                            <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">Opportunity Scoring</span>
+                            <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">XLSX/PDF/CSV Export</span>
+                        </div>
+                    </div>
+                    <div class="pt-3 border-t border-slate-800/60">
+                        <a href="https://serhohro.github.io/warmpath-radar/" target="_blank" rel="noopener noreferrer" class="text-xs font-mono text-emerald-400 hover:text-emerald-300 inline-flex items-center space-x-1.5">
+                            <i class="fa-solid fa-play text-[10px]"></i>
+                            <span class="link-launch-app">Launch Live App</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- 4. Voice Translator & B2 Sprechpartner -->
+                <article class="project-card glass-card rounded-xl p-6 space-y-4 transition-all duration-300 flex flex-col justify-between" data-tags="ai live">
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-start gap-2">
+                            <h4 class="text-lg font-bold text-white">04. Voice Translator & B2-Sprechpartner</h4>
+                            <span class="text-xs font-mono text-slate-500">Android / Dual-LLM</span>
+                        </div>
+                        <p id="p4-desc" class="text-slate-300 text-sm leading-relaxed">
+                            Android app for UKR/DE voice translation and Goethe B2 oral exam prep with automatic failover from Gemini to Groq (Llama 3.3) on 429/503 errors, native TTS, and local key storage.
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">Java / Kotlin</span>
+                            <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">Gemini + Groq</span>
+                            <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">Failover Eval</span>
+                        </div>
+                    </div>
+                    <div class="pt-3 border-t border-slate-800/60">
+                        <a href="https://github.com/serhohro/voice-translator-b2-sprechpartner" target="_blank" rel="noopener noreferrer" class="text-xs font-mono text-emerald-400 hover:text-emerald-300 inline-flex items-center space-x-1.5">
+                            <i class="fa-brands fa-github"></i>
+                            <span class="link-gh-repo">GitHub Repository</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- 5. ANNA HYPERACTIVE AutoML -->
+                <article class="project-card glass-card rounded-xl p-6 space-y-4 transition-all duration-300 flex flex-col justify-between" data-tags="ai analytics">
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-start gap-2">
+                            <h4 class="text-lg font-bold text-white">05. ANNA HYPERACTIVE AutoML</h4>
+                            <span class="text-xs font-mono text-slate-500">AutoML & XAI</span>
+                        </div>
+                        <p id="p5-desc" class="text-slate-300 text-sm leading-relaxed">
+                            Voice-guided No-Code AutoML platform with Scikit-learn, CatBoost, Random Forest, SVM, local Ollama LLM interface, 3D visualization, and SHAP / Feature Importance explainability.
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">Python / Streamlit</span>
+                            <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">SHAP & XAI</span>
+                            <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">Ollama</span>
+                        </div>
+                    </div>
+                    <div class="pt-3 border-t border-slate-800/60">
+                        <a href="https://github.com/serhohro/anna-hyperactive-automl" target="_blank" rel="noopener noreferrer" class="text-xs font-mono text-emerald-400 hover:text-emerald-300 inline-flex items-center space-x-1.5">
+                            <i class="fa-brands fa-github"></i>
+                            <span class="link-gh-repo">GitHub Repository</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- 6. Lokaler KI-Assistent Anna PRO -->
+                <article class="project-card glass-card rounded-xl p-6 space-y-4 transition-all duration-300 flex flex-col justify-between" data-tags="ai">
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-start gap-2">
+                            <h4 id="p6-title" class="text-lg font-bold text-white">06. Lokaler KI-Assistent "Anna PRO"</h4>
+                            <span class="text-xs font-mono text-slate-500">Privacy-by-Design</span>
+                        </div>
+                        <p id="p6-desc" class="text-slate-300 text-sm leading-relaxed">
+                            Offline-capable local LLM assistant built with Streamlit, Ollama, and gTTS featuring 9 specialized modes (including code generation and data analysis) and dynamic progress tracking.
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">Python / Streamlit</span>
+                            <span id="p6-tag1" class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">Local Ollama</span>
+                            <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">Offline AI</span>
+                        </div>
+                    </div>
+                    <div class="pt-3 border-t border-slate-800/60">
+                        <a href="https://github.com/serhohro/ki-assistant-anna" target="_blank" rel="noopener noreferrer" class="text-xs font-mono text-emerald-400 hover:text-emerald-300 inline-flex items-center space-x-1.5">
+                            <i class="fa-brands fa-github"></i>
+                            <span class="link-gh-repo">GitHub Repository</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- 7. Compliance Dashboard (Tableau) -->
+                <article class="project-card glass-card rounded-xl p-6 space-y-4 transition-all duration-300 flex flex-col justify-between" data-tags="analytics live">
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-start gap-2">
+                            <h4 id="p7-title" class="text-lg font-bold text-white">07. Compliance Dashboard (Tableau)</h4>
+                            <span class="text-xs font-mono text-blue-400">Tableau Viz</span>
+                        </div>
+                        <p id="p7-desc" class="text-slate-300 text-sm leading-relaxed">
+                            Interactive Tableau dashboard visualizing complex regulatory datasets to detect trends, risk patterns, and decision-ready KPIs.
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">Tableau</span>
+                            <span id="p7-tag1" class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">ETL & Modeling</span>
+                            <span id="p7-tag2" class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">Risk KPIs</span>
+                        </div>
+                    </div>
+                    <div class="pt-3 border-t border-slate-800/60">
+                        <a href="https://public.tableau.com/app/profile/sergo.hro/viz/17715413764520/sheet0" target="_blank" rel="noopener noreferrer" class="text-xs font-mono text-emerald-400 hover:text-emerald-300 inline-flex items-center space-x-1.5">
+                            <i class="fa-solid fa-chart-simple"></i>
+                            <span class="link-tableau">View Tableau Dashboard</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- 8. Sakila Movie Explorer -->
+                <article class="project-card glass-card rounded-xl p-6 space-y-4 transition-all duration-300 flex flex-col justify-between" data-tags="analytics">
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-start gap-2">
+                            <h4 class="text-lg font-bold text-white">08. Sakila Movie Explorer</h4>
+                            <span class="text-xs font-mono text-slate-500">SQL & Python</span>
+                        </div>
+                        <p id="p8-desc" class="text-slate-300 text-sm leading-relaxed">
+                            End-to-end relational database analysis covering extraction, data cleaning, and SQL pattern discovery on the Sakila dataset.
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">SQL</span>
+                            <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">Python</span>
+                            <span id="p8-tag1" class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">Data Cleaning</span>
+                        </div>
+                    </div>
+                    <div class="pt-3 border-t border-slate-800/60">
+                        <a href="https://github.com/serhohro/sakila-movie-explorer" target="_blank" rel="noopener noreferrer" class="text-xs font-mono text-emerald-400 hover:text-emerald-300 inline-flex items-center space-x-1.5">
+                            <i class="fa-brands fa-github"></i>
+                            <span class="link-gh-repo">GitHub Repository</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- 9. AI German Coach "Anna B2" -->
+                <article class="project-card glass-card rounded-xl p-6 space-y-4 transition-all duration-300 flex flex-col justify-between" data-tags="ai">
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-start gap-2">
+                            <h4 id="p9-title" class="text-lg font-bold text-white">09. AI German Coach "Anna B2"</h4>
+                            <span class="text-xs font-mono text-slate-500">Python / Streamlit</span>
+                        </div>
+                        <p id="p9-desc" class="text-slate-300 text-sm leading-relaxed">
+                            Virtual German B2 language assistant with vocabulary practice, interactive tests, and voice input.
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">Python</span>
+                            <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">Streamlit</span>
+                            <span id="p9-tag1" class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">Voice Input</span>
+                        </div>
+                    </div>
+                    <div class="pt-3 border-t border-slate-800/60">
+                        <a href="https://github.com/serhohro/anna-automl" target="_blank" rel="noopener noreferrer" class="text-xs font-mono text-emerald-400 hover:text-emerald-300 inline-flex items-center space-x-1.5">
+                            <i class="fa-brands fa-github"></i>
+                            <span class="link-gh-repo">GitHub Repository</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- 10. UnitPilot -->
+                <article class="project-card glass-card rounded-xl p-6 space-y-4 transition-all duration-300 flex flex-col justify-between" data-tags="analytics">
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-start gap-2">
+                            <h4 class="text-lg font-bold text-white">10. UnitPilot</h4>
+                            <span class="text-xs font-mono text-slate-500">Apps Script / JS</span>
+                        </div>
+                        <p id="p10-desc" class="text-slate-300 text-sm leading-relaxed">
+                            Spreadsheet assistant for unit economics modeling and product analytics automation.
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">Google Apps Script</span>
+                            <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">JavaScript</span>
+                            <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">Unit Economics</span>
+                        </div>
+                    </div>
+                    <div class="pt-3 border-t border-slate-800/60">
+                        <a href="https://github.com/serhohro/unit-pilot" target="_blank" rel="noopener noreferrer" class="text-xs font-mono text-emerald-400 hover:text-emerald-300 inline-flex items-center space-x-1.5">
+                            <i class="fa-brands fa-github"></i>
+                            <span class="link-gh-repo">GitHub Repository</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- 11. Tablefy -->
+                <article class="project-card glass-card rounded-xl p-6 space-y-4 transition-all duration-300 flex flex-col justify-between" data-tags="analytics">
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-start gap-2">
+                            <h4 class="text-lg font-bold text-white">11. Tablefy</h4>
+                            <span id="p11-meta" class="text-xs font-mono text-slate-500">Python Library</span>
+                        </div>
+                        <p id="p11-desc" class="text-slate-300 text-sm leading-relaxed">
+                            Lightweight Python library for formatting and rendering datasets as clean console tables.
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">Python</span>
+                            <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">CLI / Tables</span>
+                        </div>
+                    </div>
+                    <div class="pt-3 border-t border-slate-800/60">
+                        <a href="https://github.com/serhohro/tablefy" target="_blank" rel="noopener noreferrer" class="text-xs font-mono text-emerald-400 hover:text-emerald-300 inline-flex items-center space-x-1.5">
+                            <i class="fa-brands fa-github"></i>
+                            <span class="link-gh-repo">GitHub Repository</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- 12. Automated Reporting & AILMR Deck -->
+                <article class="project-card glass-card rounded-xl p-6 space-y-4 transition-all duration-300 flex flex-col justify-between" data-tags="analytics live">
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-start gap-2">
+                            <h4 id="p12-title" class="text-lg font-bold text-white">12. Automated Reporting & AILMR Deck</h4>
+                            <span id="p12-meta" class="text-xs font-mono text-blue-400">DE AI Job Market & Web</span>
+                        </div>
+                        <p id="p12-desc" class="text-slate-300 text-sm leading-relaxed">
+                            Interactive AILMR presentation on the German AI job market and skill mapping, plus automated Google Sheets reporting with pivot tables and validation.
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">AILMR · Plotly</span>
+                            <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">Google Sheets</span>
+                            <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700 text-slate-300">Data Validation</span>
+                        </div>
+                    </div>
+                    <div class="pt-3 border-t border-slate-800/60 flex flex-wrap gap-4">
+                        <a href="https://serhohro.github.io/ailmr-ecosystem-presentation/" target="_blank" rel="noopener noreferrer" class="text-xs font-mono text-blue-400 hover:text-blue-300 inline-flex items-center space-x-1.5">
+                            <i class="fa-solid fa-play text-[10px]"></i>
+                            <span>AILMR Deck</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                        <a href="https://docs.google.com/spreadsheets/d/1Ybtbkz6tFXhGp0U3fk-cPLBE-pLfcorkAgxPnG9w8bw" target="_blank" rel="noopener noreferrer" class="text-xs font-mono text-emerald-400 hover:text-emerald-300 inline-flex items-center space-x-1.5">
+                            <i class="fa-solid fa-table"></i>
+                            <span class="link-sheet">Reporting Sheet</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                    </div>
+                </article>
+
+            </div>
+        </section>
+
+        <section id="skills" class="space-y-8">
+            <div class="border-b border-slate-800 pb-4">
+                <h2 id="skills-label" class="text-xs font-mono text-emerald-400 tracking-widest uppercase">// COMPETENCIES</h2>
+                <h3 id="skills-title" class="text-2xl sm:text-3xl font-bold text-white mt-1">Technical Stack & Governance</h3>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass-card rounded-xl p-6 space-y-4">
+                    <div class="flex items-center space-x-3 text-emerald-400">
+                        <i class="fa-solid fa-brain text-xl"></i>
+                        <h4 id="skill-cat1" class="font-bold text-white text-lg">AI & Evaluation</h4>
+                    </div>
+                    <ul id="skill-list1" class="space-y-2 text-sm text-slate-300 font-light">
+                        <li>▸ LLM Integration & Ollama Local Inference</li>
+                        <li>▸ Prompt Design & Model Evaluation</li>
+                        <li>▸ AutoML (Scikit-learn, CatBoost, Random Forest)</li>
+                        <li>▸ Explainability (SHAP, Feature Importance)</li>
+                        <li>▸ Text Analysis & Error Evaluation</li>
+                    </ul>
+                </div>
+
+                <div class="glass-card rounded-xl p-6 space-y-4">
+                    <div class="flex items-center space-x-3 text-blue-400">
+                        <i class="fa-solid fa-chart-pie text-xl"></i>
+                        <h4 id="skill-cat2" class="font-bold text-white text-lg">Data & Visualization</h4>
+                    </div>
+                    <ul id="skill-list2" class="space-y-2 text-sm text-slate-300 font-light">
+                        <li>▸ SQL, Python (Pandas, NumPy), ETL Basics</li>
+                        <li>▸ Power BI, Tableau, Streamlit</li>
+                        <li>▸ Jupyter Notebook, Google Colab</li>
+                        <li>▸ Data Cleaning, Git, GitHub, REST APIs</li>
+                    </ul>
+                </div>
+
+                <div class="glass-card rounded-xl p-6 space-y-4">
+                    <div class="flex items-center space-x-3 text-purple-400">
+                        <i class="fa-solid fa-shield-halved text-xl"></i>
+                        <h4 id="skill-cat3" class="font-bold text-white text-lg">Governance & Languages</h4>
+                    </div>
+                    <ul id="skill-list3" class="space-y-2 text-sm text-slate-300 font-light">
+                        <li>▸ DSGVO / GDPR, Compliance & Risk Assessment</li>
+                        <li>▸ Regulatory Analysis & AI Governance</li>
+                        <li>▸ LL.M. (Master of Laws)</li>
+                        <li>▸ Ukrainian / Russian (Native), German (B1), English (Tech)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="experience" class="space-y-8">
+            <div class="border-b border-slate-800 pb-4">
+                <h2 id="exp-label" class="text-xs font-mono text-emerald-400 tracking-widest uppercase">// BACKGROUND</h2>
+                <h3 id="exp-title" class="text-2xl sm:text-3xl font-bold text-white mt-1">Experience & Education</h3>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-6">
+                    <h4 id="exp-sub1" class="text-lg font-bold text-white font-mono">Analytical Experience</h4>
+                    <div class="relative border-l border-slate-800 pl-6 space-y-8">
+                        <div class="relative">
+                            <span class="absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full bg-emerald-400 border-4 border-obsidian"></span>
+                            <span id="exp2-date" class="text-xs font-mono text-emerald-400">2016–2020 | Ukraine</span>
+                            <h5 id="exp2-role" class="text-base font-bold text-white">Compliance Specialist & Data Coordinator</h5>
+                            <p id="exp2-desc" class="text-xs text-slate-400 mt-1">Historical case structuring, audit process optimization, risk & pattern analysis.</p>
+                        </div>
+                        <div class="relative">
+                            <span class="absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full bg-slate-700 border-4 border-obsidian"></span>
+                            <span id="exp3-date" class="text-xs font-mono text-slate-400">2014–2016 | Ukraine</span>
+                            <h5 id="exp3-role" class="text-base font-bold text-white">Senior Analyst for Legal Data & Risk Assessment</h5>
+                            <p id="exp3-desc" class="text-xs text-slate-400 mt-1">Statistical evaluation of judicial datasets, quantitative risk scoring, QA.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <h4 id="exp-sub2" class="text-lg font-bold text-white font-mono">Education & Certificates</h4>
+                    <div class="glass-card rounded-lg p-4 space-y-1">
+                        <div class="flex justify-between items-start">
+                            <h5 id="edu1-title" class="font-bold text-white text-sm">Weiterbildung Data Analyst</h5>
+                            <span class="text-xs font-mono text-emerald-400">2025–2026</span>
+                        </div>
+                        <p class="text-xs text-slate-400">IT Career Hub • Python, SQL, Tableau, Power BI, Data Cleaning</p>
+                    </div>
+                    <div class="glass-card rounded-lg p-4 space-y-1">
+                        <div class="flex justify-between items-start">
+                            <h5 class="font-bold text-white text-sm">Master of Laws (LL.M.)</h5>
+                            <span class="text-xs font-mono text-slate-400">2024</span>
+                        </div>
+                        <p id="edu2-desc" class="text-xs text-slate-400">Bohdan Khmelnytsky National University of Cherkasy</p>
+                    </div>
+                    <div class="glass-card rounded-lg p-4 space-y-2">
+                        <h5 id="cert-title" class="text-xs font-mono text-slate-300 uppercase">Google / Coursera Certificates</h5>
+                        <div class="flex flex-col space-y-1 text-xs">
+                            <a href="https://coursera.org/share/89b5ab5eb5ca516ffb45b2e69ad3d468" target="_blank" rel="noopener noreferrer" class="text-emerald-400 hover:underline">Google Prompting Essentials (2026)</a>
+                            <a href="https://coursera.org/share/89d8563efbf27b726efc7f749bb38dfe" target="_blank" rel="noopener noreferrer" class="text-emerald-400 hover:underline">Google AI Essentials (2026)</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="glass-card rounded-2xl p-8 sm:p-12 text-center space-y-6">
+            <h2 id="contact-label" class="text-xs font-mono text-emerald-400 tracking-widest uppercase">// CONTACT</h2>
+            <h3 class="text-3xl font-bold text-white">AI Evaluation Analyst / AI Analyst / Applied AI</h3>
+            <p id="contact-desc" class="text-slate-300 text-sm sm:text-base max-w-xl mx-auto font-light">
+                Combining 10+ years of analytical & legal rigor with hands-on AI systems since 2025.
+            </p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="mailto:sergo87231@gmail.com" class="px-6 py-3 rounded-lg bg-emerald-500 text-black font-semibold text-sm hover:bg-emerald-400 transition">
+                    sergo87231@gmail.com
+                </a>
+                <button type="button" onclick="copyContactEmail()" class="px-6 py-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-sm font-mono">
+                    <span class="copy-label">Copy Email</span>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="border-t border-slate-800/80 py-8 text-center text-xs font-mono text-slate-500 relative z-10">
+        <div class="max-w-5xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p>© 2026 Serhiy Hromyko</p>
+            <div class="flex space-x-6 text-slate-400">
+                <a href="https://github.com/serhohro" target="_blank" rel="noopener noreferrer" class="hover:text-emerald-400">GitHub</a>
+                <a href="https://www.linkedin.com/in/serhiy-hromyko-56852325a/" target="_blank" rel="noopener noreferrer" class="hover:text-emerald-400">LinkedIn</a>
+                <a href="mailto:sergo87231@gmail.com" class="hover:text-emerald-400">Email</a>
+            </div>
+        </div>
+    </footer>
+
+    <div id="toast" class="fixed bottom-6 right-6 bg-emerald-500 text-black px-4 py-2.5 rounded-lg text-xs font-mono font-semibold shadow-xl transition-all duration-300 opacity-0 translate-y-4 pointer-events-none z-50">
+        Email copied to clipboard!
+    </div>
+
+    <script>
+        function switchLang(lang) {
+            const isDe = lang === 'de';
+            document.documentElement.lang = isDe ? 'de' : 'en';
+
+            const setText = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = val;
+            };
+            const setHtml = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = val;
+            };
+
+            setText('marquee-track', isDe
+                ? 'SERHIY HROMYKO · KI-EVALUATION · DID:VIREO · DATENANALYSE · COMPLIANCE ·\u00a0SERHIY HROMYKO · KI-EVALUATION · DID:VIREO · DATENANALYSE · COMPLIANCE ·\u00a0'
+                : 'SERHIY HROMYKO · AI EVALUATION · DID:VIREO · DATA ANALYTICS · COMPLIANCE ·\u00a0SERHIY HROMYKO · AI EVALUATION · DID:VIREO · DATA ANALYTICS · COMPLIANCE ·\u00a0'
+            );
+
+            setText('nav-about', isDe ? '// 01. ÜBER MICH' : '// 01. ABOUT');
+            setText('nav-projects', isDe ? '// 02. PROJEKTE' : '// 02. PROJECTS');
+            setText('nav-skills', isDe ? '// 03. KOMPETENZEN' : '// 03. SKILLS');
+            setText('nav-experience', isDe ? '// 04. ERFAHRUNG' : '// 04. EXPERIENCE');
+            setText('nav-contact', isDe ? '// 05. KONTAKT' : '// 05. CONTACT');
+
+            setText('btn-copy-text', isDe ? 'E-Mail kopieren' : 'Copy Email');
+            document.querySelectorAll('.copy-label').forEach(el => {
+                el.textContent = isDe ? 'E-Mail kopieren' : 'Copy Email';
+            });
+
+            setText('about-badge', isDe
+                ? 'Hamburg, Deutschland • AI Evaluation Analyst / AI Analyst / Applied AI'
+                : 'Hamburg, Germany • AI Evaluation Analyst / AI Analyst / Applied AI'
+            );
+
+            setHtml('about-subtitle', isDe
+                ? 'Data & AI Analyst <span class="text-emerald-400">|</span> KI-Evaluation & Integration'
+                : 'Data & AI Analyst <span class="text-emerald-400">|</span> AI Evaluation & Integration'
+            );
+
+            setHtml('about-bio', isDe
+                ? '<strong class="font-medium text-white">Über 10 Jahre Erfahrung in Rechtsdaten, Compliance & Risikoanalyse</strong> kombiniert mit praktischem KI-Engineering seit 2025. Autor der W3C-registrierten DID-Methode <code class="font-mono text-emerald-400 bg-slate-900 px-1.5 py-0.5 rounded text-sm">did:vireo</code>, Multi-LLM-Failover-Systemen sowie datenschutzfreundlichen AutoML- & Analyse-Tools.'
+                : '<strong class="font-medium text-white">10+ years of legal data, compliance & risk analysis</strong> background combined with practical AI engineering since 2025. Author of W3C-registered DID method <code class="font-mono text-emerald-400 bg-slate-900 px-1.5 py-0.5 rounded text-sm">did:vireo</code>, multi-LLM failover systems, and privacy-first AutoML & analytics tools.'
+            );
+
+            setText('btn-contact-text', isDe ? 'Kontakt aufnehmen' : 'Get in Touch');
+
+            setText('projects-label', isDe ? '// PORTFOLIO' : '// PORTFOLIO');
+            setText('projects-title', isDe ? 'KI-Systeme, Datenanalyse & Tools' : 'AI Systems, Analytics & Tools');
+            setText('filter-all', isDe ? 'Alle' : 'All');
+            setText('filter-ai', isDe ? 'KI-Systeme' : 'AI Systems');
+            setText('filter-analytics', isDe ? 'Datenanalyse' : 'Data Analytics');
+            setText('filter-live', isDe ? 'Live & Apps' : 'Live & Apps');
+
+            setHtml('p1-badge', isDe
+                ? '<i class="fa-solid fa-award mr-1"></i> W3C-registrierte DID-Methode'
+                : '<i class="fa-solid fa-award mr-1"></i> W3C Registered DID Method'
+            );
+            setText('p1-title', isDe
+                ? '01. did:vireo — Dezentrale W3C-Identifier-Methode'
+                : '01. did:vireo — W3C Decentralized Identifier Method'
+            );
+            setText('p1-meta', isDe ? 'Apache 2.0 • 226 B Byte-identisch' : 'Apache 2.0 • 226 B Byte-Identical');
+            setHtml('p1-desc', isDe
+                ? 'Entwicklung und offizielle Registrierung von <code class="text-emerald-400 font-mono">did:vireo</code> im W3C DID Method Registry für KI-Agenten-Identität und nachvollziehbare Kommunikation. Byte-identisch (226 B) in Python, Rust und TypeScript mit BLAKE2b-256- und Ed25519-Prüfung in der CI.'
+                : 'Developed and officially registered <code class="text-emerald-400 font-mono">did:vireo</code> in the W3C DID Method Registry for AI agent identity and verifiable communication. Byte-identical (226 B) across Python, Rust, and TypeScript with BLAKE2b-256 and Ed25519 verification in CI.'
+            );
+
+            document.querySelectorAll('.link-w3c').forEach(el => el.textContent = 'W3C DID Methods Registry');
+            document.querySelectorAll('.link-view-repo').forEach(el => el.textContent = isDe ? 'Repository ansehen' : 'View Repository');
+            document.querySelectorAll('.link-gh-repo').forEach(el => el.textContent = isDe ? 'GitHub-Repository' : 'GitHub Repository');
+            document.querySelectorAll('.link-launch-app').forEach(el => el.textContent = isDe ? 'Live-App öffnen' : 'Launch Live App');
+            document.querySelectorAll('.link-tableau').forEach(el => el.textContent = isDe ? 'Tableau-Dashboard öffnen' : 'View Tableau Dashboard');
+            document.querySelectorAll('.link-sheet').forEach(el => el.textContent = isDe ? 'Reporting-Tabelle' : 'Reporting Sheet');
+
+            setHtml('p2-desc', isDe
+                ? 'Open-Source-API und Kommunikationsplattform auf Basis von <code class="text-emerald-400 font-mono">did:vireo</code>. Ermöglicht ChatGPT, Claude, Gemini und lokalen Modellen den Austausch strukturierter Daten über ein gemeinsames Protokoll.'
+                : 'Open-source API and communication platform built on <code class="text-emerald-400 font-mono">did:vireo</code>. Enables ChatGPT, Claude, Gemini, and local models to exchange structured data via a common protocol.'
+            );
+            setText('p2-tag1', isDe ? 'Compiler & Interpreter' : 'Compiler & Interpreter');
+            setText('p2-tag2', isDe ? 'Lokale Inferenz' : 'Local Inference');
+
+            setText('p3-meta', isDe ? 'Live-App' : 'Live App');
+            setText('p3-desc', isDe
+                ? 'Entscheidungsunterstützende Netzwerkanalyse-App zur Konsolidierung von CSV-, TSV-, XLSX-, ODS-, JSON-, JSONL- und Parquet-Kontakten mit Opportunity Scoring, Warm-Intro-Pfaden und DSGVO-orientierter lokaler Verarbeitung.'
+                : 'Decision-support network analytics app consolidating CSV, TSV, XLSX, ODS, JSON, JSONL, and Parquet contacts with Opportunity Scoring, warm-intro path visualization, and GDPR-aware local processing.'
+            );
+            setText('p3-tag1', isDe ? 'Multi-Format-ETL' : 'Multi-Format ETL');
+
+            setText('p4-desc', isDe
+                ? 'Android-App für UKR/DE-Sprachübersetzung und Goethe-B2-Prüfungsvorbereitung mit automatischem Failover von Gemini auf Groq (Llama 3.3) bei 429/503-Fehlern, nativem TTS und lokaler Schlüsselspeicherung.'
+                : 'Android app for UKR/DE voice translation and Goethe B2 oral exam prep with automatic failover from Gemini to Groq (Llama 3.3) on 429/503 errors, native TTS, and local key storage.'
+            );
+
+            setText('p5-desc', isDe
+                ? 'Sprachgesteuerte No-Code-AutoML-Plattform mit Scikit-learn, CatBoost, Random Forest, SVM, lokaler Ollama-LLM-Schnittstelle, 3D-Visualisierung sowie SHAP- & Feature-Importance-Erklärbarkeit.'
+                : 'Voice-guided No-Code AutoML platform with Scikit-learn, CatBoost, Random Forest, SVM, local Ollama LLM interface, 3D visualization, and SHAP / Feature Importance explainability.'
+            );
+
+            setText('p6-title', isDe ? '06. Lokaler KI-Assistent "Anna PRO"' : '06. Lokaler KI-Assistent "Anna PRO"');
+            setText('p6-desc', isDe
+                ? 'Offline-fähiger lokaler LLM-Assistent mit Streamlit, Ollama und gTTS sowie 9 spezialisierten Modi (u. a. Code-Generierung und Datenanalyse) und dynamischem Fortschritts-Tracking.'
+                : 'Offline-capable local LLM assistant built with Streamlit, Ollama, and gTTS featuring 9 specialized modes (including code generation and data analysis) and dynamic progress tracking.'
+            );
+            setText('p6-tag1', isDe ? 'Lokales Ollama' : 'Local Ollama');
+
+            setText('p7-title', isDe ? '07. Compliance-Dashboard (Tableau)' : '07. Compliance Dashboard (Tableau)');
+            setText('p7-desc', isDe
+                ? 'Interaktives Tableau-Dashboard zur Visualisierung komplexer regulatorischer Datensätze für Trend-, Risikomuster- und KPI-Analysen.'
+                : 'Interactive Tableau dashboard visualizing complex regulatory datasets to detect trends, risk patterns, and decision-ready KPIs.'
+            );
+            setText('p7-tag1', isDe ? 'ETL & Modellierung' : 'ETL & Modeling');
+            setText('p7-tag2', isDe ? 'Risiko-KPIs' : 'Risk KPIs');
+
+            setText('p8-desc', isDe
+                ? 'Durchgängige Analyse relationaler Datenbanken inklusive Extraktion, Datenbereinigung und SQL-Mustererkennung auf dem Sakila-Datensatz.'
+                : 'End-to-end relational database analysis covering extraction, data cleaning, and SQL pattern discovery on the Sakila dataset.'
+            );
+            setText('p8-tag1', isDe ? 'Datenbereinigung' : 'Data Cleaning');
+
+            setText('p9-title', isDe ? '09. KI-Deutschcoach "Anna B2"' : '09. AI German Coach "Anna B2"');
+            setText('p9-desc', isDe
+                ? 'Virtueller Deutsch-B2-Sprachassistent mit Vokabeltraining, interaktiven Tests und Spracheingabe.'
+                : 'Virtual German B2 language assistant with vocabulary practice, interactive tests, and voice input.'
+            );
+            setText('p9-tag1', isDe ? 'Spracheingabe' : 'Voice Input');
+
+            setText('p10-desc', isDe
+                ? 'Tabellen-Assistent für Unit-Economics-Modellierung und Automatisierung von Produktanalysen.'
+                : 'Spreadsheet assistant for unit economics modeling and product analytics automation.'
+            );
+
+            setText('p11-meta', isDe ? 'Python-Bibliothek' : 'Python Library');
+            setText('p11-desc', isDe
+                ? 'Schlanke Python-Bibliothek zur Formatierung und Ausgabe von Datensätzen als übersichtliche Konsolentabellen.'
+                : 'Lightweight Python library for formatting and rendering datasets as clean console tables.'
+            );
+
+            setText('p12-title', isDe ? '12. Automatisiertes Reporting & AILMR-Deck' : '12. Automated Reporting & AILMR Deck');
+            setText('p12-meta', isDe ? 'DE KI-Arbeitsmarkt & Web' : 'DE AI Job Market & Web');
+            setText('p12-desc', isDe
+                ? 'Interaktive AILMR-Präsentation zum deutschen KI-Arbeitsmarkt und Skill-Mapping sowie automatisiertes Google-Sheets-Reporting mit Pivot-Tabellen und Validierung.'
+                : 'Interactive AILMR presentation on the German AI job market and skill mapping, plus automated Google Sheets reporting with pivot tables and validation.'
+            );
+
+            setText('skills-label', isDe ? '// KOMPETENZEN' : '// COMPETENCIES');
+            setText('skills-title', isDe ? 'Tech-Stack & Governance' : 'Technical Stack & Governance');
+            setText('skill-cat1', isDe ? 'KI & Evaluation' : 'AI & Evaluation');
+            setText('skill-cat2', isDe ? 'Daten & Visualisierung' : 'Data & Visualization');
+            setText('skill-cat3', isDe ? 'Governance & Sprachen' : 'Governance & Languages');
+
+            setHtml('skill-list1', isDe
+                ? '<li>▸ LLM-Integration & lokale Ollama-Inferenz</li><li>▸ Prompt-Design & Modellevaluation</li><li>▸ AutoML (Scikit-learn, CatBoost, Random Forest)</li><li>▸ Explainability (SHAP, Feature Importance)</li><li>▸ Textanalyse & Fehlerauswertung</li>'
+                : '<li>▸ LLM Integration & Ollama Local Inference</li><li>▸ Prompt Design & Model Evaluation</li><li>▸ AutoML (Scikit-learn, CatBoost, Random Forest)</li><li>▸ Explainability (SHAP, Feature Importance)</li><li>▸ Text Analysis & Error Evaluation</li>'
+            );
+            setHtml('skill-list2', isDe
+                ? '<li>▸ SQL, Python (Pandas, NumPy), ETL-Grundlagen</li><li>▸ Power BI, Tableau, Streamlit</li><li>▸ Jupyter Notebook, Google Colab</li><li>▸ Datenbereinigung, Git, GitHub, REST-APIs</li>'
+                : '<li>▸ SQL, Python (Pandas, NumPy), ETL Basics</li><li>▸ Power BI, Tableau, Streamlit</li><li>▸ Jupyter Notebook, Google Colab</li><li>▸ Data Cleaning, Git, GitHub, REST APIs</li>'
+            );
+            setHtml('skill-list3', isDe
+                ? '<li>▸ DSGVO / GDPR, Compliance & Risikobewertung</li><li>▸ Regulatorische Analyse & AI Governance</li><li>▸ LL.M. (Master of Laws)</li><li>▸ Ukrainisch / Russisch (Muttersprache), Deutsch (B1), Englisch (Tech)</li>'
+                : '<li>▸ DSGVO / GDPR, Compliance & Risk Assessment</li><li>▸ Regulatory Analysis & AI Governance</li><li>▸ LL.M. (Master of Laws)</li><li>▸ Ukrainian / Russian (Native), German (B1), English (Tech)</li>'
+            );
+
+            setText('exp-label', isDe ? '// WERDEGANG' : '// BACKGROUND');
+            setText('exp-title', isDe ? 'Berufserfahrung & Ausbildung' : 'Experience & Education');
+            setText('exp-sub1', isDe ? 'Analytische Erfahrung' : 'Analytical Experience');
+            setText('exp2-date', isDe ? '2016–2020 | Ukraine' : '2016–2020 | Ukraine');
+            setText('exp2-role', 'Compliance Specialist & Data Coordinator');
+            setText('exp2-desc', isDe
+                ? 'Strukturierung historischer Fälle, Optimierung von Audit-Prozessen, Risiko- & Musteranalyse.'
+                : 'Historical case structuring, audit process optimization, risk & pattern analysis.'
+            );
+            setText('exp3-date', isDe ? '2014–2016 | Ukraine' : '2014–2016 | Ukraine');
+            setText('exp3-role', isDe ? 'Senior Analyst für Rechtsdaten & Risikobewertung' : 'Senior Analyst for Legal Data & Risk Assessment');
+            setText('exp3-desc', isDe
+                ? 'Statistische Auswertung gerichtlicher Datensätze, quantitatives Risk Scoring, QA.'
+                : 'Statistical evaluation of judicial datasets, quantitative risk scoring, QA.'
+            );
+
+            setText('exp-sub2', isDe ? 'Ausbildung & Zertifikate' : 'Education & Certificates');
+            setText('edu1-title', 'Weiterbildung Data Analyst');
+            setText('edu2-desc', isDe
+                ? 'Nationale Universität Tscherkassy (Bohdan Khmelnytsky)'
+                : 'Bohdan Khmelnytsky National University of Cherkasy'
+            );
+            setText('cert-title', isDe ? 'Google- / Coursera-Zertifikate' : 'Google / Coursera Certificates');
+
+            setText('contact-label', isDe ? '// KONTAKT' : '// CONTACT');
+            setText('contact-desc', isDe
+                ? 'Über 10 Jahre analytische und rechtliche Sorgfalt vereint mit praxisnahen KI-Systemen seit 2025.'
+                : 'Combining 10+ years of analytical & legal rigor with hands-on AI systems since 2025.'
+            );
+
+            setText('toast', isDe ? 'E-Mail in die Zwischenablage kopiert!' : 'Email copied to clipboard!');
+
+            const btnEn = document.getElementById('lang-en');
+            const btnDe = document.getElementById('lang-de');
+            if (btnEn && btnDe) {
+                if (isDe) {
+                    btnDe.className = 'px-2.5 py-1 rounded bg-emerald-500 text-black font-semibold transition';
+                    btnEn.className = 'px-2.5 py-1 rounded text-slate-300 hover:text-white transition';
+                } else {
+                    btnEn.className = 'px-2.5 py-1 rounded bg-emerald-500 text-black font-semibold transition';
+                    btnDe.className = 'px-2.5 py-1 rounded text-slate-300 hover:text-white transition';
+                }
+            }
+
+            try { localStorage.setItem('site_lang', isDe ? 'de' : 'en'); } catch (e) {}
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            let saved = null;
+            try { saved = localStorage.getItem('site_lang'); } catch (e) {}
+            if (saved === 'de' || saved === 'en') {
+                switchLang(saved);
+            }
+        });
+
+        // Interactive nodes & connection lines background with cursor attraction
+        const canvas = document.getElementById('nodes-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, nodes;
+        const mouse = { x: null, y: null, radius: 150 };
+
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+
+        window.addEventListener('mouseleave', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+
+        function initNodes() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            const count = Math.min(64, Math.max(28, Math.floor((width * height) / 26000)));
+            nodes = Array.from({ length: count }, () => {
+                const x = Math.random() * width;
+                const y = Math.random() * height;
+                return {
+                    x,
+                    y,
+                    baseX: x,
+                    baseY: y,
+                    vx: (Math.random() - 0.5) * 0.35,
+                    vy: (Math.random() - 0.5) * 0.35,
+                    r: Math.random() * 1.1 + 0.9
+                };
+            });
+        }
+
+        window.addEventListener('resize', initNodes);
+
+        function drawNodes() {
+            ctx.clearRect(0, 0, width, height);
+
+            for (let i = 0; i < nodes.length; i++) {
+                const a = nodes[i];
+                a.baseX += a.vx;
+                a.baseY += a.vy;
+
+                if (a.baseX < 0 || a.baseX > width) a.vx *= -1;
+                if (a.baseY < 0 || a.baseY > height) a.vy *= -1;
+
+                let targetX = a.baseX;
+                let targetY = a.baseY;
+
+                if (mouse.x !== null && mouse.y !== null) {
+                    const dxm = mouse.x - a.baseX;
+                    const dym = mouse.y - a.baseY;
+                    const distm = Math.hypot(dxm, dym);
+                    if (distm < mouse.radius) {
+                        const pull = (1 - distm / mouse.radius) * 0.45;
+                        targetX = a.baseX + dxm * pull;
+                        targetY = a.baseY + dym * pull;
+                    }
+                }
+
+                a.x += (targetX - a.x) * 0.08;
+                a.y += (targetY - a.y) * 0.08;
+
+                for (let j = i + 1; j < nodes.length; j++) {
+                    const b = nodes[j];
+                    const dx = a.x - b.x;
+                    const dy = a.y - b.y;
+                    const dist = Math.hypot(dx, dy);
+                    if (dist < 130) {
+                        ctx.strokeStyle = `rgba(16, 185, 129, ${(1 - dist / 130) * 0.16})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(a.x, a.y);
+                        ctx.lineTo(b.x, b.y);
+                        ctx.stroke();
+                    }
+                }
+
+                if (mouse.x !== null && mouse.y !== null) {
+                    const dxm = a.x - mouse.x;
+                    const dym = a.y - mouse.y;
+                    const distm = Math.hypot(dxm, dym);
+                    if (distm < mouse.radius) {
+                        ctx.strokeStyle = `rgba(16, 185, 129, ${(1 - distm / mouse.radius) * 0.28})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(a.x, a.y);
+                        ctx.lineTo(mouse.x, mouse.y);
+                        ctx.stroke();
+                    }
+                }
+
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.42)';
+                ctx.beginPath();
+                ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            requestAnimationFrame(drawNodes);
+        }
+
+        initNodes();
+        drawNodes();
+
+        // Project filter
+        function filterProjects(tag, btnEl) {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-emerald-500/20', 'text-emerald-300', 'border-emerald-500/50');
+                btn.classList.add('bg-slate-800', 'text-slate-400', 'border-slate-700');
+            });
+            if (btnEl) {
+                btnEl.classList.remove('bg-slate-800', 'text-slate-400', 'border-slate-700');
+                btnEl.classList.add('active', 'bg-emerald-500/20', 'text-emerald-300', 'border-emerald-500/50');
+            }
+            document.querySelectorAll('.project-card').forEach(card => {
+                const tags = card.getAttribute('data-tags') || '';
+                card.style.display = (tag === 'all' || tags.split(' ').includes(tag)) ? '' : 'none';
+            });
+        }
+
+        // Copy email
+        function copyContactEmail() {
+            const email = "sergo87231@gmail.com";
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(email).then(showToast);
+            } else {
+                const ta = document.createElement("textarea");
+                ta.value = email;
+                ta.style.position = "fixed";
+                ta.style.left = "-999999px";
+                document.body.appendChild(ta);
+                ta.select();
+                try { document.execCommand('copy'); showToast(); } catch (e) {}
+                document.body.removeChild(ta);
+            }
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
