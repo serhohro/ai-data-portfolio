@@ -13,7 +13,7 @@ Bilingual (EN / DE) portfolio showcasing work across AI systems, AI evaluation, 
 
 ## Certifications & Education
 
-- **CS50 AI (Harvard / CS50):** [Certificate (PDF)](https://certificates.cs50.io/91a1dee5-26c1-4406-bfff-d3643322a182.pdf?size=letter)
+- **CS50 AI (Harvard University / CS50):** [Certificate (PDF)](https://certificates.cs50.io/91a1dee5-26c1-4406-bfff-d3643322a182.pdf?size=letter)
 - **LL.M. (2024):** Legal data, regulatory compliance, and risk assessment background.
 
 ## Repository Contents
